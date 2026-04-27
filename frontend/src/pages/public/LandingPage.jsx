@@ -1,6 +1,16 @@
 import { useState } from 'react'
+import { useNavigate } from 'react-router-dom'
 import Navbar from '@/components/layout/Navbar'
+import Footer from '@/components/layout/Footer'
 import '@/styles/landing.css'
+
+import m1 from '@/assets/m1.jpg'
+import m2 from '@/assets/m2.jpg'
+import m3 from '@/assets/m3.jpg'
+import m4 from '@/assets/m4.jpg'
+import m5 from '@/assets/m5.jpg'
+import m6 from '@/assets/m6.jpg'
+import m7 from '@/assets/m7.jpg'
 
 // ─── Data ────────────────────────────────────────────────────────────────────
 
@@ -87,7 +97,6 @@ const scrollTo = (id) => {
   document.getElementById(id)?.scrollIntoView({ behavior: 'smooth', block: 'start' })
 }
 
-const handleBooking = () => alert('Fitur booking akan segera tersedia!')
 
 // ─── Sections ────────────────────────────────────────────────────────────────
 
@@ -114,57 +123,37 @@ function HeroSection() {
         </div>
       </div>
 
-      <div className="hero-visual">
-        <div className="hero-mosaic">
-          <div className="mosaic-block m1">
-            <svg viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="1.2" aria-hidden="true">
-              <rect x="3" y="7" width="18" height="13" rx="2" />
-              <circle cx="12" cy="13" r="3" />
-              <path d="M8 7V5a1 1 0 011-1h6a1 1 0 011 1v2" />
-            </svg>
-          </div>
-          <div className="mosaic-block m2" />
-          <div className="mosaic-block m3" />
-          <div className="mosaic-block m4" />
-          <div className="mosaic-block m5">
-            <svg viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="1.2" aria-hidden="true">
-              <path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2" />
-              <circle cx="9" cy="7" r="4" />
-              <path d="M23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75" />
-            </svg>
-          </div>
-          <div className="mosaic-block m6" />
-          <div className="mosaic-block m7" />
-        </div>
-        <div className="hero-float-card">
-          <div className="float-dot" />
-          <div className="float-text">
-            <strong>12 slot tersedia</strong> hari ini
-          </div>
-        </div>
-      </div>
+
     </section>
   )
 }
 
-function StatsSection() {
+const MOSAIC_PHOTOS = [
+  { src: m1, alt: 'Studio foto 1', cls: 'm1', position: 'center top'    },
+  { src: m2, alt: 'Studio foto 2', cls: 'm2', position: 'center center' },
+  { src: m3, alt: 'Studio foto 3', cls: 'm3', position: 'center top'    },
+  { src: m4, alt: 'Studio foto 4', cls: 'm4', position: '100% 18%' },
+  { src: m5, alt: 'Studio foto 5', cls: 'm5', position: '50% top'    },
+  { src: m6, alt: 'Studio foto 6', cls: 'm6', position: 'center center' },
+  { src: m7, alt: 'Studio foto 7', cls: 'm7', position: '30% 18%'    },
+]
+
+function FotoSection() {
   return (
-    <div className="stats-wrap">
-      <div className="stats-inner">
-        <div className="stat-item">
-          <span className="stat-num">2rb<sup>+</sup></span>
-          <span className="stat-label">Sesi foto</span>
-        </div>
-        <div className="stat-item">
-          <span className="stat-num">98<sup>%</sup></span>
-          <span className="stat-label">Kepuasan pelanggan</span>
-        </div>
-        <div className="stat-item">
-          <span className="stat-num">15<sup>+</sup></span>
-          <span className="stat-label">Studio bergabung</span>
-        </div>
+    <section className="foto-section" id="foto">
+      <div className="foto-mosaic">
+        {MOSAIC_PHOTOS.map((photo) => (
+          <div key={photo.cls} className={`mosaic-block ${photo.cls}`}>
+            <img
+              src={photo.src}
+              alt={photo.alt}
+              className="mosaic-img"
+              style={{ objectPosition: photo.position }}
+            />
+          </div>
+        ))}
       </div>
-    </div>
+    </section>
   )
 }
 
@@ -237,7 +226,7 @@ function HowSection() {
   )
 }
 
-function PackagesSection() {
+function PackagesSection({ onBook }) {
   return (
     <section className="section packages-section" id="paket">
       <div className="section-inner">
@@ -260,7 +249,7 @@ function PackagesSection() {
                   <li key={f}>{f}</li>
                 ))}
               </ul>
-              <button className="pkg-btn" onClick={handleBooking}>
+              <button className="pkg-btn" onClick={onBook}>
                 Pilih paket ini
               </button>
             </div>
@@ -299,7 +288,7 @@ function TestimonialsSection() {
   )
 }
 
-function CTASection() {
+function CTASection({ onBook }) {
   return (
     <section className="cta-section" id="booking">
       <div className="cta-inner">
@@ -309,7 +298,7 @@ function CTASection() {
           Slot tersedia terbatas setiap harinya. Booking sekarang sebelum penuh — tanpa perlu daftar akun.
         </p>
         <div className="cta-actions">
-          <button className="btn-dark" onClick={() => scrollTo('paket')}>
+          <button className="btn-dark" onClick={onBook}>
             Pilih paket foto
           </button>
           <button className="btn-white-ghost" onClick={() => scrollTo('cara-kerja')}>
@@ -322,73 +311,31 @@ function CTASection() {
   )
 }
 
-function FooterSection() {
-  return (
-    <footer>
-      <div className="footer-inner">
-        <div className="footer-brand">
-          <button
-            className="logo"
-            onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
-          >
-            Studio<span>Book</span>
-          </button>
-          <p className="footer-tagline">
-            Sistem booking studio foto modern untuk UMKM Indonesia. Ringan, mudah, dan terjangkau.
-          </p>
-        </div>
 
-        <div className="footer-col">
-          <h4>Navigasi</h4>
-          <ul>
-            <li><button onClick={() => scrollTo('cara-kerja')}>Cara kerja</button></li>
-            <li><button onClick={() => scrollTo('paket')}>Paket foto</button></li>
-            <li><button onClick={() => scrollTo('testimoni')}>Testimoni</button></li>
-            <li><button onClick={() => scrollTo('booking')}>Booking sekarang</button></li>
-          </ul>
-        </div>
-
-        <div className="footer-col">
-          <h4>Studio</h4>
-          <ul>
-            <li><a href="#">Tentang kami</a></li>
-            <li><a href="#">Daftarkan studio</a></li>
-            <li><a href="#">Kebijakan privasi</a></li>
-            <li><a href="#">Hubungi kami</a></li>
-          </ul>
-        </div>
-      </div>
-
-      <hr className="footer-divider" />
-
-      <div className="footer-bottom">
-        <span>© 2026 StudioBook. Semua hak dilindungi.</span>
-        <span>Dibuat dengan ❤ untuk studio foto Indonesia</span>
-      </div>
-    </footer>
-  )
-}
 
 // ─── Page ─────────────────────────────────────────────────────────────────────
 
 export default function LandingPage() {
+  const navigate = useNavigate()
+  const goToBooking = () => navigate('/booking/paket')
+
   return (
-    <div className="landing-root">
+    <>
       <Navbar />
       <HeroSection />
-      <StatsSection />
+      <FotoSection />
       <HowSection />
-      <PackagesSection />
+      <PackagesSection onBook={goToBooking} />
       <TestimonialsSection />
-      <CTASection />
-      <FooterSection />
+      <CTASection onBook={goToBooking} />
+      <Footer />
       <button
         className="floating-cta"
-        onClick={() => scrollTo('paket')}
+        onClick={goToBooking}
         aria-label="Booking sekarang"
       >
         Booking sekarang
       </button>
-    </div>
+    </>
   )
 }
