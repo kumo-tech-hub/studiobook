@@ -2,18 +2,32 @@ import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import '@/styles/admin.css'
 import { useAuthStore } from '@/store/authStore'
+import api from '@/services/api'
 
 export default function Login() {
   const navigate = useNavigate()
   const setAdmin = useAuthStore((state) => state.setAdmin)
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
+  const [loading, setLoading] = useState(false)
+  const [error, setError] = useState('')
 
-  const handleLogin = (e) => {
+  const handleLogin = async (e) => {
     e.preventDefault()
-    // For now, bypass auth
-    setAdmin({ email })
-    navigate('/admin/dashboard')
+    setLoading(true)
+    setError('')
+
+    try {
+      const response = await api.post('/login', { email, password })
+      const { user, access_token } = response.data
+      
+      setAdmin(user, access_token)
+      navigate('/admin/dashboard')
+    } catch (err) {
+      setError(err.response?.data?.message || 'Email atau password salah.')
+    } finally {
+      setLoading(false)
+    }
   }
 
   return (
@@ -67,6 +81,19 @@ export default function Login() {
           </p>
 
           <form onSubmit={handleLogin}>
+            {error && (
+              <div style={{ 
+                padding: '12px', 
+                background: 'rgba(193, 18, 31, 0.1)', 
+                color: 'var(--secondary)', 
+                borderRadius: '8px', 
+                fontSize: '13px', 
+                marginBottom: '20px',
+                border: '1px solid rgba(193, 18, 31, 0.2)'
+              }}>
+                {error}
+              </div>
+            )}
             <div className="admin-form-group">
               <label>Email</label>
               <input
@@ -98,11 +125,13 @@ export default function Login() {
               <a href="#" className="forgot-link">Lupa password?</a>
             </div>
 
-            <button type="submit" className="admin-btn">
-              Masuk dashboard
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                <path d="M5 12h14M12 5l7 7-7 7"/>
-              </svg>
+            <button type="submit" className="admin-btn" disabled={loading}>
+              {loading ? 'Menghubungkan...' : 'Masuk dashboard'}
+              {!loading && (
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                  <path d="M5 12h14M12 5l7 7-7 7"/>
+                </svg>
+              )}
             </button>
           </form>
 

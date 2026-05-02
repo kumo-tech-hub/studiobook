@@ -120,7 +120,7 @@
 
 /* ─── HERO ───────────────────────────────────── */
 .hero {
-  padding: var(--space-2xl) var(--space-lg) 0;
+  padding: var(--space-2xl) var(--space-lg) var(--space-2xl);
   max-width: var(--max-width);
   margin: 0 auto;
 }
@@ -709,7 +709,7 @@ footer {
 
   .hero {
     grid-template-columns: 1fr;
-    padding: 40px 20px 0;
+    padding: 40px 20px 60px;
     gap: 40px;
   }
   .hero h1       { font-size: 48px; }

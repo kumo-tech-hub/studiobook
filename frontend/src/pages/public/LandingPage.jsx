@@ -103,8 +103,7 @@ const scrollTo = (id) => {
 function HeroSection() {
   return (
     <section className="hero">
-      <div className="hero-content">
-        <div className="hero-badge">Sistem booking studio</div>
+      <div className="hero-content ">
         <h1>
           Abadikan<br />
           <em>momen</em><br />

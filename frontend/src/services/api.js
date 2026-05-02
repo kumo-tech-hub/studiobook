@@ -9,6 +9,15 @@ const api = axios.create({
   },
 })
 
+// Request Interceptor: Add Token
+api.interceptors.request.use((config) => {
+  const token = JSON.parse(localStorage.getItem('auth-storage'))?.state?.token
+  if (token) {
+    config.headers.Authorization = `Bearer ${token}`
+  }
+  return config
+})
+
 api.interceptors.response.use(
   (response) => response,
   (error) => {
