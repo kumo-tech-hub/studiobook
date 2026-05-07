@@ -24,7 +24,7 @@ export default function Confirmation() {
     { label: 'Jam', value: selectedSlot ?? '—' },
     { label: 'Nama', value: customerInfo?.nama ?? '—' },
     { label: 'WhatsApp', value: customerInfo?.whatsapp ? `+62${customerInfo.whatsapp}` : '—' },
-    { label: 'Jumlah orang', value: customerInfo?.jumlah ? `${customerInfo.jumlah} orang` : '—' },
+    ...(customerInfo?.email ? [{ label: 'Email', value: customerInfo.email }] : []),
   ]
 
   const buildWaMessage = () => {
@@ -35,7 +35,7 @@ export default function Confirmation() {
       `• Jam: ${selectedSlot}`,
       `• Nama: ${customerInfo?.nama}`,
       `• WhatsApp: +62${customerInfo?.whatsapp}`,
-      `• Jumlah: ${customerInfo?.jumlah} orang`,
+      customerInfo?.email ? `• Email: ${customerInfo.email}` : '',
       customerInfo?.catatan ? `• Catatan: ${customerInfo.catatan}` : '',
       `• Total: ${formatRp(totalPrice)}`,
     ].filter(Boolean).join('\n')

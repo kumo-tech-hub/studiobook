@@ -15,6 +15,7 @@ import BookingDetail from '@/pages/admin/BookingDetail'
 import ManageSlots from '@/pages/admin/ManageSlots'
 import ManagePackages from '@/pages/admin/ManagePackages'
 import Reports from '@/pages/admin/Reports'
+import Settings from '@/pages/admin/Settings'
 import AdminLayout from '@/components/layout/AdminLayout'
 
 const App = () => {
@@ -43,6 +44,7 @@ const App = () => {
           <Route path="slots" element={<ManageSlots />} />
           <Route path="packages" element={<ManagePackages />} />
           <Route path="reports" element={<Reports />} />
+          <Route path="settings" element={<Settings />} />
         </Route>
       </Routes>
     </BrowserRouter>

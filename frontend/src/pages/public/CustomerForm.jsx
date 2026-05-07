@@ -12,7 +12,7 @@ export default function CustomerForm() {
   const navigate = useNavigate()
   const { selectedPackage, selectedAddOns, selectedDate, selectedSlot, setCustomerInfo } = useBookingStore()
 
-  const [form, setForm] = useState({ nama: '', whatsapp: '', jumlah: '', catatan: '' })
+  const [form, setForm] = useState({ nama: '', whatsapp: '', email: '', catatan: '' })
   const [errors, setErrors] = useState({})
 
   const totalPrice = (selectedPackage?.price ?? 0) +
@@ -32,7 +32,7 @@ export default function CustomerForm() {
     if (!form.nama.trim()) e.nama = 'Nama wajib diisi'
     if (!form.whatsapp.trim()) e.whatsapp = 'Nomor WhatsApp wajib diisi'
     else if (!/^[0-9]{9,13}$/.test(form.whatsapp.replace(/\D/g, ''))) e.whatsapp = 'Format nomor tidak valid'
-    if (!form.jumlah) e.jumlah = 'Jumlah orang wajib diisi'
+    if (form.email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email)) e.email = 'Format email tidak valid'
     return e
   }
 
@@ -133,23 +133,17 @@ export default function CustomerForm() {
 
             <div className="form-group">
               <label className="form-label">
-                Jumlah orang <span className="required">*</span>
+                Email <span style={{ fontSize: '12px', color: 'var(--text-45)', fontWeight: 400 }}>(opsional)</span>
               </label>
               <input
                 className="form-input"
-                placeholder="1"
-                type="number"
-                min="1"
-                max={selectedPackage?.id === 'family' ? 6 : selectedPackage?.id === 'couple' ? 2 : 1}
-                value={form.jumlah}
-                onChange={(e) => set('jumlah', e.target.value)}
+                placeholder="email@example.com"
+                type="email"
+                value={form.email}
+                onChange={(e) => set('email', e.target.value)}
               />
-              {selectedPackage && (
-                <div className="form-hint">
-                  Paket {selectedPackage.name} maksimal {selectedPackage.id === 'family' ? 6 : selectedPackage.id === 'couple' ? 2 : 1} orang
-                </div>
-              )}
-              {errors.jumlah && <div className="form-hint" style={{ color: 'var(--secondary)' }}>{errors.jumlah}</div>}
+              <div className="form-hint">Untuk kirim bukti booking via email</div>
+              {errors.email && <div className="form-hint" style={{ color: 'var(--secondary)' }}>{errors.email}</div>}
             </div>
 
             <div className="form-group">

@@ -1,7 +1,8 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import Navbar from '@/components/layout/Navbar'
 import Footer from '@/components/layout/Footer'
+import api from '@/services/api'
 import '@/styles/landing.css'
 
 import m1 from '@/assets/m1.jpg'
@@ -37,36 +38,6 @@ const STEPS = [
   },
 ]
 
-const PREVIEW_PACKAGES = [
-  { name: 'Paket Basic',  meta: '60 menit · 1 orang',  price: 'Rp150rb', total: 'Rp150.000' },
-  { name: 'Paket Couple', meta: '90 menit · 2 orang',  price: 'Rp250rb', total: 'Rp250.000' },
-  { name: 'Paket Family', meta: '120 menit · max 6',   price: 'Rp400rb', total: 'Rp400.000' },
-]
-
-const PACKAGES = [
-  {
-    badge: 'Solo', badgeVariant: 'default',
-    name: 'Basic', price: 'Rp150', unit: 'rb',
-    duration: '60 menit · 1 orang',
-    features: ['1 background pilihan', 'Cetak 2 foto ukuran 4R', 'Soft file semua hasil foto', 'Penggunaan props dasar'],
-    featured: false,
-  },
-  {
-    badge: 'Terlaris', badgeVariant: 'hot',
-    name: 'Couple', price: 'Rp250', unit: 'rb',
-    duration: '90 menit · 2 orang',
-    features: ['2 background pilihan', 'Cetak 4 foto ukuran 4R', 'Soft file semua hasil foto', 'Penggunaan props lengkap', '1 foto frame digital'],
-    featured: true,
-  },
-  {
-    badge: 'Keluarga', badgeVariant: 'pro',
-    name: 'Family', price: 'Rp400', unit: 'rb',
-    duration: '120 menit · max 6 orang',
-    features: ['3 background pilihan', 'Cetak 8 foto ukuran 4R', 'Soft file semua hasil foto', 'Penggunaan props lengkap', 'Album digital eksklusif'],
-    featured: false,
-  },
-]
-
 const TESTIMONIALS = [
   {
     text: 'Booking-nya gampang banget. Langsung tau slot mana yang kosong, tidak perlu nunggu reply WA berjam-jam. Hasilnya juga keren!',
@@ -97,6 +68,8 @@ const scrollTo = (id) => {
   document.getElementById(id)?.scrollIntoView({ behavior: 'smooth', block: 'start' })
 }
 
+const formatRp = (n) => 'Rp' + n.toLocaleString('id-ID')
+
 
 // ─── Sections ────────────────────────────────────────────────────────────────
 
@@ -121,8 +94,6 @@ function HeroSection() {
           </button>
         </div>
       </div>
-
-
     </section>
   )
 }
@@ -156,8 +127,11 @@ function FotoSection() {
   )
 }
 
-function HowSection() {
+function HowSection({ packages }) {
   const [selectedPkg, setSelectedPkg] = useState(0)
+  const displayPackages = packages.slice(0, 3)
+
+  if (displayPackages.length === 0) return null
 
   return (
     <section className="section how-section" id="cara-kerja">
@@ -191,9 +165,9 @@ function HowSection() {
               ))}
             </div>
             <div className="preview-pkg-list">
-              {PREVIEW_PACKAGES.map((pkg, i) => (
+              {displayPackages.map((pkg, i) => (
                 <div
-                  key={pkg.name}
+                  key={pkg.id}
                   className={`preview-pkg${selectedPkg === i ? ' selected' : ''}`}
                   onClick={() => setSelectedPkg(i)}
                   role="radio"
@@ -202,11 +176,11 @@ function HowSection() {
                   onKeyDown={(e) => e.key === 'Enter' && setSelectedPkg(i)}
                 >
                   <div>
-                    <div className="preview-pkg-name">{pkg.name}</div>
-                    <div className="preview-meta">{pkg.meta}</div>
+                    <div className="preview-pkg-name">{pkg.title}</div>
+                    <div className="preview-meta">{pkg.duration} menit</div>
                   </div>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-                    <div className="preview-pkg-price">{pkg.price}</div>
+                    <div className="preview-pkg-price">Rp{pkg.price / 1000}rb</div>
                     <div className="preview-pkg-radio" />
                   </div>
                 </div>
@@ -215,7 +189,7 @@ function HowSection() {
             <div className="preview-footer">
               <span className="preview-footer-label">Total sementara</span>
               <span className="preview-footer-total">
-                {PREVIEW_PACKAGES[selectedPkg].total}
+                {formatRp(displayPackages[selectedPkg]?.price || 0)}
               </span>
             </div>
           </div>
@@ -225,7 +199,7 @@ function HowSection() {
   )
 }
 
-function PackagesSection({ onBook }) {
+function PackagesSection({ packages, onBook, loading }) {
   return (
     <section className="section packages-section" id="paket">
       <div className="section-inner">
@@ -235,24 +209,43 @@ function PackagesSection({ onBook }) {
           Semua paket sudah termasuk akses studio, pencahayaan profesional, dan soft file hasil foto.
         </p>
         <div className="pkg-grid">
-          {PACKAGES.map((pkg) => (
-            <div key={pkg.name} className={`pkg-card${pkg.featured ? ' featured' : ''}`}>
-              <span className={`pkg-badge ${pkg.badgeVariant}`}>{pkg.badge}</span>
-              <div className="pkg-name">{pkg.name}</div>
-              <div className="pkg-price">
-                {pkg.price}<small>{pkg.unit}</small>
-              </div>
-              <div className="pkg-duration">{pkg.duration}</div>
-              <ul className="pkg-features">
-                {pkg.features.map((f) => (
-                  <li key={f}>{f}</li>
-                ))}
-              </ul>
-              <button className="pkg-btn" onClick={onBook}>
-                Pilih paket ini
-              </button>
+          {loading ? (
+            <div style={{ gridColumn: '1 / -1', textAlign: 'center', padding: '40px', color: 'var(--text-45)' }}>
+              Memuat paket pilihan...
             </div>
-          ))}
+          ) : packages.length > 0 ? (
+            packages.map((pkg, i) => (
+              <div key={pkg.id} className={`pkg-card${i === 1 ? ' featured' : ''}`}>
+                <span className={`pkg-badge ${i === 1 ? 'hot' : 'default'}`}>
+                  {i === 1 ? 'Terlaris' : 'Favorit'}
+                </span>
+                <div className="pkg-name">{pkg.title}</div>
+                <div className="pkg-price">
+                  Rp{pkg.price / 1000}<small>rb</small>
+                </div>
+                <div className="pkg-duration">{pkg.duration} menit sesi foto</div>
+                <ul className="pkg-features">
+                  {pkg.features?.map((f, idx) => (
+                    <li key={idx}>{f}</li>
+                  ))}
+                  {!pkg.features && (
+                    <>
+                      <li>Soft file semua hasil foto</li>
+                      <li>Peralatan studio lengkap</li>
+                      <li>Asisten fotografer</li>
+                    </>
+                  )}
+                </ul>
+                <button className="pkg-btn" onClick={() => onBook(pkg.id)}>
+                  Pilih paket ini
+                </button>
+              </div>
+            ))
+          ) : (
+            <div style={{ gridColumn: '1 / -1', textAlign: 'center', padding: '40px', color: 'var(--text-45)' }}>
+              Belum ada paket yang tersedia.
+            </div>
+          )}
         </div>
       </div>
     </section>
@@ -297,7 +290,7 @@ function CTASection({ onBook }) {
           Slot tersedia terbatas setiap harinya. Booking sekarang sebelum penuh — tanpa perlu daftar akun.
         </p>
         <div className="cta-actions">
-          <button className="btn-dark" onClick={onBook}>
+          <button className="btn-dark" onClick={() => onBook()}>
             Pilih paket foto
           </button>
           <button className="btn-white-ghost" onClick={() => scrollTo('cara-kerja')}>
@@ -310,27 +303,50 @@ function CTASection({ onBook }) {
   )
 }
 
-
-
 // ─── Page ─────────────────────────────────────────────────────────────────────
 
 export default function LandingPage() {
   const navigate = useNavigate()
-  const goToBooking = () => navigate('/booking/paket')
+  const [packages, setPackages] = useState([])
+  const [loading, setLoading] = useState(true)
+
+  useEffect(() => {
+    const fetchPackages = async () => {
+      try {
+        const res = await api.get('/packages')
+        // Filter hanya paket yang aktif
+        setPackages(res.data.filter(p => p.is_active))
+      } catch (err) {
+        console.error('Gagal memuat paket:', err)
+      } finally {
+        setLoading(false)
+      }
+    }
+    fetchPackages()
+  }, [])
+
+  const goToBooking = (pkgId) => {
+    if (pkgId) {
+      // Jika butuh simpan di store, bisa panggil setPackage(pkg) di sini
+      navigate('/booking/paket')
+    } else {
+      navigate('/booking/paket')
+    }
+  }
 
   return (
     <>
       <Navbar />
       <HeroSection />
       <FotoSection />
-      <HowSection />
-      <PackagesSection onBook={goToBooking} />
+      <HowSection packages={packages} />
+      <PackagesSection packages={packages} onBook={goToBooking} loading={loading} />
       <TestimonialsSection />
-      <CTASection onBook={goToBooking} />
+      <CTASection onBook={() => goToBooking()} />
       <Footer />
       <button
         className="floating-cta"
-        onClick={goToBooking}
+        onClick={() => goToBooking()}
         aria-label="Booking sekarang"
       >
         Booking sekarang
